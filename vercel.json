@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/gracias",  "dest": "/api/gracias" },
+    { "src": "/(.*)",     "dest": "/public/$1" }
+  ],
+  "env": {
+    "MP_ACCESS_TOKEN": "@mp_access_token",
+    "TIENDA_EMAIL":    "@tienda_email",
+    "BASE_URL":        "@base_url",
+    "RESEND_API_KEY":  "@resend_api_key"
+  }
+}

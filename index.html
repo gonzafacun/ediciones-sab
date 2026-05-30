@@ -1478,51 +1478,40 @@ async function processPayment() {
   const btn = document.getElementById('payNowBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>';
-
   showView('loadingView');
 
-  // Simulación de llamada al backend para crear la preferencia
-  // En producción, este código llama a tu backend que usa el SDK de MP
+  const items = Object.values(cart).map(item => ({
+    title:      item.name,
+    quantity:   item.qty,
+    unit_price: item.price,
+    category_id: 'others'
+  }));
+
+  const payerEmail = document.getElementById('payerEmail').value;
+
   try {
-    /*
-    // --- CÓDIGO DE PRODUCCIÓN ---
-    // 1. Tu backend crea la preferencia con el SDK de Mercado Pago:
-    //
-    //   const { MercadoPagoConfig, Preference } = require('mercadopago');
-    //   const client = new MercadoPagoConfig({ accessToken: 'TU_ACCESS_TOKEN' });
-    //   const preference = new Preference(client);
-    //   const result = await preference.create({ body: {
-    //     items: cartItems,
-    //     payer: { email: payerEmail },
-    //     back_urls: { success: '...', failure: '...', pending: '...' },
-    //     auto_return: 'approved'
-    //   }});
-    //
-    // 2. El frontend tokeniza la tarjeta con MercadoPago.js:
-    //
-    //   const mp = new MercadoPago('TU_PUBLIC_KEY');
-    //   const cardToken = await mp.createCardToken({ cardNumber, cardholderName, cardExpirationMonth, cardExpirationYear, securityCode, identificationType, identificationNumber });
-    //
-    // 3. Enviás el token al backend para procesar el pago:
-    //
-    //   const response = await fetch('/api/process-payment', {
-    //     method: 'POST',
-    //     body: JSON.stringify({ token: cardToken.id, transaction_amount: total, installments: cuotas, payer: { email } })
-    //   });
-    */
+    const response = await fetch('/api/crear-preferencia', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ items, payer_email: payerEmail })
+    });
 
-    // DEMO: simulamos delay y éxito
-    await delay(2500);
+    const data = await response.json();
 
-    const orderId = 'MP-' + Math.random().toString(36).substring(2, 10).toUpperCase();
-    document.getElementById('orderId').textContent = `Orden: #${orderId}`;
-    showView('successView');
+    if (data.init_point) {
+      // Para PRODUCCIÓN:
+      window.location.href = data.init_point;
 
+      // Para SANDBOX (pruebas), comentá la línea de arriba y usá:
+      // window.location.href = data.sandbox_init_point;
+    } else {
+      throw new Error(data.error || 'Error desconocido');
+    }
   } catch (err) {
     showView('formView');
-    showToast('❌ Error al procesar. Intentá de nuevo.');
+    showToast('❌ ' + err.message);
     btn.disabled = false;
-    btn.innerHTML = `Pagar ${formatPrice(getTotal())}`;
+    btn.innerHTML = 'Pagar ' + formatPrice(getTotal());
   }
 }
 

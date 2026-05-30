@@ -1,0 +1,10 @@
+{
+  "name": "ediciones-sab",
+  "version": "1.0.0",
+  "description": "Tienda online Ediciones Sab con Mercado Pago",
+  "dependencies": {
+    "mercadopago": "^2.0.15",
+    "resend": "^3.2.0",
+    "node-fetch": "^3.3.2"
+  }
+}
